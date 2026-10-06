@@ -8,6 +8,8 @@
 #import "../model/errorbar.typ": errorbar, generate-xerrorbar, generate-yerrorbar
 #import "../logic/time.typ"
 #import "../math.typ": linspace
+#import "../style/styling.typ": style
+#import "annotation.typ": render-annotations
 #import "@preview/tiptoe:0.4.0"
 
 #let get-errorbar-stroke(base-stroke) = {
@@ -150,6 +152,25 @@
 
 }
 
+
+// Renders the annotations of a plot. This is called separately from 
+// `render-plot` so that annotations are neither clipped to the data area 
+// nor covered by other plots. 
+#let render-plot-annotations(plot, transform) = context {
+  let points = filter-nan-points(plot.x.zip(plot.y)).map(p => transform(..p))
+  if plot.style.step != none { 
+    points = stepify(points, step: plot.style.step)
+  }
+
+  let color = style.fill
+  if plot.style.color != auto { color = plot.style.color }
+  if plot.style.stroke not in (auto, none) {
+    let paint = stroke(plot.style.stroke).paint
+    if paint != auto { color = paint }
+  }
+
+  render-annotations(points, plot.annotations, color, transform)
+}
 
 
 
@@ -390,6 +411,10 @@
   /// the style cycle is neither used nor advanced to the next index.
   /// -> bool
   use-cycle: true,
+
+  /// Annotations that are attached to the curve, see @annotation. 
+  /// -> array | dictionary
+  annotations: (),
   
 ) = {
   if type(y) == function {
@@ -439,6 +464,8 @@
       toe: toe,
     ),
     plot: render-plot,
+    annotations: annotations,
+    annotate: render-plot-annotations,
     xlimits: () => plot-lim(x, err: xerr),
     ylimits: () => plot-lim(y, err: yerr),
     datetime: datetime-axes,

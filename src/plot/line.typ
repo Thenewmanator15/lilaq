@@ -2,6 +2,7 @@
 #import "../logic/limits.typ": compute-primitive-limits
 #import "../logic/time.typ"
 #import "@preview/tiptoe:0.4.0"
+#import "annotation.typ": render-annotations
 
 
 /// Draws a line into the data area. 
@@ -90,6 +91,10 @@
   /// -> int | float
   z-index: 2,
 
+  /// Annotations that are attached to the line, see @annotation. 
+  /// -> array | dictionary
+  annotations: (),
+
 ) = {
   let datetime-axes = (:)
 
@@ -134,6 +139,16 @@
     xlimits: compute-primitive-limits.with(vertices.map(x => x.at(0))),
     ylimits: compute-primitive-limits.with(vertices.map(x => x.at(1))),
     label: label,
+    annotations: annotations,
+    annotate: (plot, transform) => context {
+      let paint = std.stroke(stroke).paint
+      render-annotations(
+        vertices.map(convert-vertex.with(transform: transform)), 
+        annotations, 
+        if paint == auto { black } else { paint }, 
+        transform
+      )
+    },
     datetime: datetime-axes,
     legend: true,
     clip: clip,

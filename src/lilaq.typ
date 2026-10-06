@@ -39,6 +39,7 @@
 #import "plot/line.typ": line
 #import "plot/path.typ": path
 #import "plot/place.typ": place
+#import "plot/annotation.typ": annotation
 
 
 #import "style/tilings.typ"

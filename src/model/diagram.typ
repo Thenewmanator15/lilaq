@@ -335,6 +335,17 @@
       }
       if not reveal(i) { plotted-plot = none }
       artists.push((content: plotted-plot, z: plot.at("z-index", default: 2)))
+
+      let annotations = plot.at("annotations", default: ())
+      if type(annotations) == dictionary or annotations.len() > 0 {
+        let annotated = {
+          show: cycle-init
+          show: cycle-style
+          (plot.annotate)(plot, transform)
+        }
+        if not reveal(i) { annotated = none }
+        artists.push((content: annotated, z: 21))
+      }
     }
 
     
